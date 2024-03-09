@@ -132,6 +132,43 @@ def init_state(version_specs_dict):
         st.info(state["msg"])
     return state
 
+def get_cond_aug():
+    cond_aug = st.number_input(
+                "Conditioning augmentation:", value=0.02, min_value=0.0
+            )
+    
+    return cond_aug
+
+def get_seed():
+    seed = st.sidebar.number_input(
+            "seed", value=23, min_value=0, max_value=int(1e9)
+        )
+    
+    return seed
+
+def saving_locally():
+    # TODO: Let user choose to save locally or not
+    return True
+
+def get_decoding_t(num_frames, options):
+    decoding_t = st.number_input(
+            "Decode t frames at a time (set small if you are low on VRAM)",
+            value=options.get("decoding_t", num_frames),
+            min_value=1,
+            max_value=int(1e9),
+        )
+    
+    return decoding_t
+
+def change_fps_if_required(value_dict):
+    if st.checkbox("Overwrite fps in mp4 generator", False):
+        saving_fps = st.number_input(
+                f"saving video at fps:", value=value_dict["fps"], min_value=1
+            )
+    else:
+        saving_fps = value_dict["fps"]
+    return saving_fps
+
 if __name__ == "__main__":
 
     model_version = get_model_version()
@@ -143,7 +180,7 @@ if __name__ == "__main__":
     H = get_video_height(version_specs_dict)
     W = get_video_width(version_specs_dict)
 
-    T = get_total_number_of_frames(version_specs_dict)
+    num_frames = get_total_number_of_frames(version_specs_dict)
 
     C = version_specs_dict["C"]
     F = version_specs_dict["f"]
@@ -167,40 +204,27 @@ if __name__ == "__main__":
 
         if mode == "img2vid":
             img = load_img_for_prediction(W, H)
-            cond_aug = st.number_input(
-                "Conditioning augmentation:", value=0.02, min_value=0.0
-            )
+            cond_aug = get_cond_aug()
             value_dict["cond_frames_without_noise"] = img
             value_dict["cond_frames"] = img + cond_aug * torch.randn_like(img)
             value_dict["cond_aug"] = cond_aug
 
-        seed = st.sidebar.number_input(
-            "seed", value=23, min_value=0, max_value=int(1e9)
-        )
+        seed = get_seed()
         seed_everything(seed)
 
-        save_locally, save_path = init_save_locally(
-            os.path.join(SAVE_PATH, model_version), init_value=True
-        )
+        if saving_locally():
+            save_locally, save_path = init_save_locally(
+                os.path.join(SAVE_PATH, model_version), init_value=True
+            )
 
-        options["num_frames"] = T
+        options["num_frames"] = num_frames
 
         sampler, num_rows, num_cols = init_sampling(options=options)
         num_samples = num_rows * num_cols
 
-        decoding_t = st.number_input(
-            "Decode t frames at a time (set small if you are low on VRAM)",
-            value=options.get("decoding_t", T),
-            min_value=1,
-            max_value=int(1e9),
-        )
+        decoding_t = get_decoding_t(num_frames, options)
 
-        if st.checkbox("Overwrite fps in mp4 generator", False):
-            saving_fps = st.number_input(
-                f"saving video at fps:", value=value_dict["fps"], min_value=1
-            )
-        else:
-            saving_fps = value_dict["fps"]
+        saving_fps = change_fps_if_required(value_dict)
 
         if st.button("Sample"):
             out = do_sample(
@@ -212,7 +236,7 @@ if __name__ == "__main__":
                 W,
                 C,
                 F,
-                T=T,
+                T=num_frames,
                 batch2model_input=["num_video_frames", "image_only_indicator"],
                 force_uc_zero_embeddings=options.get("force_uc_zero_embeddings", None),
                 force_cond_zero_embeddings=options.get(
@@ -229,4 +253,4 @@ if __name__ == "__main__":
                 samples_z = None
 
             if save_locally:
-                save_video_as_grid_and_mp4(samples, save_path, T, fps=saving_fps)
+                save_video_as_grid_and_mp4(samples, save_path, num_frames, fps=saving_fps)
