@@ -4,6 +4,8 @@ from pytorch_lightning import seed_everything
 
 from scripts.demo.streamlit_helpers import *
 
+import txt2vid_backend
+
 SAVE_PATH = "outputs/demo/vid/"
 
 VERSION2SPECS = {
@@ -169,33 +171,6 @@ def change_fps_if_required(value_dict):
         saving_fps = value_dict["fps"]
     return saving_fps
 
-def produce_sample(H, W, num_frames, C, F, options, model, value_dict, sampler, num_samples, decoding_t):
-    out = do_sample(
-                model,
-                sampler,
-                value_dict,
-                num_samples,
-                H,
-                W,
-                C,
-                F,
-                T=num_frames,
-                batch2model_input=["num_video_frames", "image_only_indicator"],
-                force_uc_zero_embeddings=options.get("force_uc_zero_embeddings", None),
-                force_cond_zero_embeddings=options.get(
-                    "force_cond_zero_embeddings", None
-                ),
-                return_latents=False,
-                decoding_t=decoding_t,
-            )
-
-    if isinstance(out, (tuple, list)):
-        samples, samples_z = out
-    else:
-        samples = out
-        samples_z = None
-    return samples
-
 
 if __name__ == "__main__":
 
@@ -255,7 +230,7 @@ if __name__ == "__main__":
         saving_fps = change_fps_if_required(value_dict)
 
         if st.button("Sample"):
-            samples = produce_sample(H, W, num_frames, C, F, options, model, value_dict, sampler, num_samples, decoding_t)
+            samples = txt2vid_backend.produce_sample(H, W, num_frames, C, F, options, model, value_dict, sampler, num_samples, decoding_t)
 
             if save_locally:
                 save_video_as_grid_and_mp4(samples, save_path, num_frames, fps=saving_fps)
