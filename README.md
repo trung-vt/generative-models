@@ -1,4 +1,7 @@
-# Generative Models by Stability AI
+# Text to Video
+
+
+<!-- # Generative Models by Stability AI -->
 
 ![sample1](assets/000.jpg)
 
