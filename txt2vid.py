@@ -108,45 +108,50 @@ def get_mode():
         mode = "skip"
     return mode
 
-def get_video_height():
+def get_video_height(version_specs_dict):
     H = st.sidebar.number_input(
-        "H", value=version_dict["H"], min_value=64, max_value=2048
+        "H", value=version_specs_dict["H"], min_value=64, max_value=2048
     )
     return H
 
-def get_video_width():
+def get_video_width(version_specs_dict):
     W = st.sidebar.number_input(
-        "W", value=version_dict["W"], min_value=64, max_value=2048
+        "W", value=version_specs_dict["W"], min_value=64, max_value=2048
     )
     return W
 
-def get_total_number_of_frames():
+def get_total_number_of_frames(version_specs_dict):
     T = st.sidebar.number_input(
-        "T", value=version_dict["T"], min_value=0, max_value=128
+        "T", value=version_specs_dict["T"], min_value=0, max_value=128
     )
     return T
+
+def init_state(version_specs_dict):
+    state = init_st(version_specs_dict, load_filter=True)
+    if state["msg"]:
+        st.info(state["msg"])
+    return state
 
 if __name__ == "__main__":
 
     model_version = get_model_version()
 
-    version_dict = VERSION2SPECS[model_version]
+    version_specs_dict = VERSION2SPECS[model_version]
 
-    mode = get_mode()
+    mode = get_mode(version_specs_dict)
 
-    H = get_video_height()
-    W = get_video_width()
-    
-    T = get_total_number_of_frames()
+    H = get_video_height(version_specs_dict)
+    W = get_video_width(version_specs_dict)
 
-    C = version_dict["C"]
-    F = version_dict["f"]
-    options = version_dict["options"]
+    T = get_total_number_of_frames(version_specs_dict)
+
+    C = version_specs_dict["C"]
+    F = version_specs_dict["f"]
+
+    options = version_specs_dict["options"]
 
     if mode != "skip":
-        state = init_st(version_dict, load_filter=True)
-        if state["msg"]:
-            st.info(state["msg"])
+        state = init_state()
         model = state["model"]
 
         ukeys = set(
