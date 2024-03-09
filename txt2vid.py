@@ -93,13 +93,19 @@ def do_UI():
     st.title("Stable Video Diffusion")
 
 
-if __name__ == "__main__":
-    version = st.selectbox(
+def get_model_version():
+    model_version = st.selectbox(
         "Model Version",
         [k for k in VERSION2SPECS.keys()],
         0,
     )
-    version_dict = VERSION2SPECS[version]
+    return model_version
+
+if __name__ == "__main__":
+
+    model_version = get_model_version()
+
+    version_dict = VERSION2SPECS[model_version]
     if st.checkbox("Load Model"):
         mode = "img2vid"
     else:
@@ -150,7 +156,7 @@ if __name__ == "__main__":
         seed_everything(seed)
 
         save_locally, save_path = init_save_locally(
-            os.path.join(SAVE_PATH, version), init_value=True
+            os.path.join(SAVE_PATH, model_version), init_value=True
         )
 
         options["num_frames"] = T
