@@ -89,9 +89,11 @@ VERSION2SPECS = {
     },
 }
 
+def do_UI():
+    st.title("Stable Video Diffusion")
+
 
 if __name__ == "__main__":
-    st.title("Stable Video Diffusion")
     version = st.selectbox(
         "Model Version",
         [k for k in VERSION2SPECS.keys()],
