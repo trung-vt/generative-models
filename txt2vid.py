@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
     version_specs_dict = VERSION2SPECS[model_version]
 
-    mode = get_mode(version_specs_dict)
+    mode = get_mode()
 
     H = get_video_height(version_specs_dict)
     W = get_video_width(version_specs_dict)
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     options = version_specs_dict["options"]
 
     if mode != "skip":
-        state = init_state()
+        state = init_state(version_specs_dict)
         model = state["model"]
 
         ukeys = set(
