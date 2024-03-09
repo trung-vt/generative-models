@@ -101,25 +101,44 @@ def get_model_version():
     )
     return model_version
 
+def get_mode():
+    if st.checkbox("Load Model"):
+        mode = "img2vid"
+    else:
+        mode = "skip"
+    return mode
+
+def get_video_height():
+    H = st.sidebar.number_input(
+        "H", value=version_dict["H"], min_value=64, max_value=2048
+    )
+    return H
+
+def get_video_width():
+    W = st.sidebar.number_input(
+        "W", value=version_dict["W"], min_value=64, max_value=2048
+    )
+    return W
+
+def get_total_number_of_frames():
+    T = st.sidebar.number_input(
+        "T", value=version_dict["T"], min_value=0, max_value=128
+    )
+    return T
+
 if __name__ == "__main__":
 
     model_version = get_model_version()
 
     version_dict = VERSION2SPECS[model_version]
-    if st.checkbox("Load Model"):
-        mode = "img2vid"
-    else:
-        mode = "skip"
 
-    H = st.sidebar.number_input(
-        "H", value=version_dict["H"], min_value=64, max_value=2048
-    )
-    W = st.sidebar.number_input(
-        "W", value=version_dict["W"], min_value=64, max_value=2048
-    )
-    T = st.sidebar.number_input(
-        "T", value=version_dict["T"], min_value=0, max_value=128
-    )
+    mode = get_mode()
+
+    H = get_video_height()
+    W = get_video_width()
+    
+    T = get_total_number_of_frames()
+
     C = version_dict["C"]
     F = version_dict["f"]
     options = version_dict["options"]
