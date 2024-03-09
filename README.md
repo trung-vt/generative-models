@@ -1,5 +1,15 @@
 # Text to Video
 
+Run the model locally:
+
+```bash
+
+PYTHONPATH=. streamlit run txt2vid.py --server.port 1233
+
+```
+
+Change the port number `1233` to anything you'd like
+
 
 <!-- # Generative Models by Stability AI -->
 
